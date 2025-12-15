@@ -22,15 +22,45 @@ const createExpense = async (req, res) => {
 
 //Getting all expenses of a logged in user
 
-const getExpenses = async (req, res) => {
-  try {
-    const expenses = await Expense.find({ user: req.user._id }).sort({
-      date: -1,
-    });
-    res.json(expenses);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+exports.getExpenses = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const query = { user: req.user._id };
+
+  // Filter by category
+  if (req.query.category) {
+    query.category = req.query.category;
   }
+
+  // Filter by date range
+  if (req.query.startDate || req.query.endDate) {
+    query.date = {};
+
+    if (req.query.startDate) {
+      query.date.$gte = new Date(req.query.startDate);
+    }
+
+    if (req.query.endDate) {
+      query.date.$lte = new Date(req.query.endDate);
+    }
+  }
+
+  const total = await Expense.countDocuments(query);
+
+  const expenses = await Expense.find(query)
+    .sort({ date: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  res.json({
+    page,
+    limit,
+    total,
+    pages: Math.ceil(total / limit),
+    expenses,
+  });
 };
 
 // Updating expenses

@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 6,
+    minlength: 8,
   },
 
   // Authorization role determining access level.
@@ -44,7 +44,14 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
 
+  // Adding roles allows for differentiated access control,
+  // enabling features like admin dashboards or user management.
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
+});
 // Export the Mongoose model for the "user" collection.
 module.exports = mongoose.model("user", userSchema);
