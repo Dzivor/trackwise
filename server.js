@@ -4,7 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./src/config/db");
-
+const authRoutes = require("./src/routes/authRoutes");
 dotenv.config();
 connectDB();
 
@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use("/api/auth", authRoutes);
 
 // Test route
 app.get("/", (req, res) => {
